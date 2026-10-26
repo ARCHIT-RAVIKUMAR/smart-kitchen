@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Shopping List')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('shopping')}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: messages}"></div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+        <h1 class="h3 page-title mb-0"><i class="bi bi-cart3"></i> Shopping list</h1>
+        <div class="d-flex gap-2 no-print" th:if="${!#lists.isEmpty(items)}">
+            <button type="button" id="copyList" class="btn btn-outline-kitchen"><i class="bi bi-clipboard"></i> Copy list</button>
+            <button type="button" id="printList" class="btn btn-kitchen"><i class="bi bi-printer"></i> Print</button>
+        </div>
+    </div>
+    <p class="text-muted">Items that are low or out of stock. The suggested amount restocks each item to
+        <strong>twice its minimum stock</strong> (or 1 unit when the minimum is 0).</p>
+
+    <div class="card shadow-sm" th:if="${!#lists.isEmpty(items)}">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 table-cards">
+                <thead>
+                <tr><th>Item</th><th>Category</th><th>You have</th><th>Minimum</th><th>Status</th><th>Buy about</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${items}" class="shop-row"
+                    th:attr="data-text=${v.item.name + ' - ' + v.suggestedPurchaseWithUnit}">
+                    <td data-label="Item"><a class="fw-semibold text-decoration-none" th:href="@{/inventory/{id}(id=${v.item.id})}" th:text="${v.item.name}">Item</a></td>
+                    <td data-label="Category" th:text="${v.item.category.label}">Category</td>
+                    <td data-label="You have" th:text="${v.quantityWithUnit}">1 kg</td>
+                    <td data-label="Minimum" th:text="${v.minimumWithUnit}">2 kg</td>
+                    <td data-label="Status"><th:block th:replace="~{fragments/layout :: stockBadge(${v.stockStatus})}"></th:block></td>
+                    <td data-label="Buy about" class="fw-bold" th:text="${v.suggestedPurchaseWithUnit}">3 kg</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card shadow-sm" th:if="${#lists.isEmpty(items)}">
+        <div class="card-body empty-state">
+            <div class="emoji">&#128717;</div>
+            <h2 class="h5">Nothing to buy right now</h2>
+            <p>Every item is above its minimum stock.</p>
+            <a class="btn btn-outline-kitchen" th:href="@{/inventory}">View inventory</a>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

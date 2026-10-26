@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('dashboard')}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <div class="hero p-4 p-md-5 mb-4 shadow-sm">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h1 class="h2 mb-1"><i class="bi bi-egg-fried"></i> Your kitchen at a glance</h1>
+                <p class="mb-0 opacity-75"
+                   th:text="${totalAlerts == 0} ? 'Everything looks good. Nothing needs your attention.' : ${totalAlerts} + ' thing(s) need your attention.'">Summary</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-light" th:href="@{/inventory/new}"><i class="bi bi-plus-lg"></i> Add item</a>
+                <a class="btn btn-outline-light" th:href="@{/inventory/shopping-list}"><i class="bi bi-cart3"></i> Shopping list</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <th:block th:replace="~{fragments/layout :: statCard('Total items', ${summary.total}, 'bi-box-seam', 'tone-green', @{/inventory})}"></th:block>
+        <th:block th:replace="~{fragments/layout :: statCard('In stock', ${summary.inStock}, 'bi-check2-circle', 'tone-green', @{/inventory(stock='IN_STOCK')})}"></th:block>
+        <th:block th:replace="~{fragments/layout :: statCard('Low stock', ${summary.lowStock}, 'bi-exclamation-triangle', 'tone-amber', @{/inventory(stock='LOW_STOCK')})}"></th:block>
+        <th:block th:replace="~{fragments/layout :: statCard('Out of stock', ${summary.outOfStock}, 'bi-x-octagon', 'tone-red', @{/inventory(stock='OUT_OF_STOCK')})}"></th:block>
+        <th:block th:replace="~{fragments/layout :: statCard('Expiring soon', ${summary.expiringSoon}, 'bi-hourglass-split', 'tone-amber', @{/inventory(expiry='EXPIRING_SOON')})}"></th:block>
+        <th:block th:replace="~{fragments/layout :: statCard('Expired', ${summary.expired}, 'bi-calendar-x', 'tone-red', @{/inventory(expiry='EXPIRED')})}"></th:block>
+    </div>
+
+    <div th:if="${summary.total == 0}" class="card shadow-sm mb-4">
+        <div class="card-body empty-state">
+            <div class="emoji">&#129367;</div>
+            <h2 class="h5">Your kitchen inventory is empty</h2>
+            <p>Add your first item to start tracking stock and expiry dates.</p>
+            <a class="btn btn-kitchen" th:href="@{/inventory/new}">Add your first item</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-body fw-semibold">
+                    <i class="bi bi-bell"></i> Alerts
+                    <span class="badge text-bg-secondary ms-1" th:text="${totalAlerts}">0</span>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a th:each="a : ${alerts}" th:href="@{/inventory/{id}(id=${a.itemId})}"
+                       class="list-group-item list-group-item-action"
+                       th:classappend="'list-group-item-' + ${a.severity}" th:text="${a.message}">Alert</a>
+                    <div th:if="${#lists.isEmpty(alerts)}" class="list-group-item text-muted">
+                        No alerts right now. Everything looks good! &#9989;
+                    </div>
+                </div>
+                <div class="card-footer bg-body d-flex flex-wrap gap-2" th:if="${totalAlerts > 0}">
+                    <a class="btn btn-sm btn-outline-kitchen" th:href="@{/inventory/low-stock}">All stock alerts</a>
+                    <a class="btn btn-sm btn-outline-kitchen" th:href="@{/inventory/expiry}">All expiry alerts</a>
+                    <small class="text-muted align-self-center"
+                           th:text="'Expiring soon = within ' + ${expiringSoonDays} + ' days'">Expiring soon</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm mb-4" th:if="${summary.total > 0}">
+                <div class="card-header bg-body fw-semibold"><i class="bi bi-bar-chart"></i> Stock health</div>
+                <div class="card-body">
+                    <div class="progress health-bar" role="progressbar" aria-label="Stock health">
+                        <div class="progress-bar bg-success" th:style="'width:' + ${summary.inStock * 100 / summary.total} + '%'"></div>
+                        <div class="progress-bar bg-warning" th:style="'width:' + ${summary.lowStock * 100 / summary.total} + '%'"></div>
+                        <div class="progress-bar bg-danger" th:style="'width:' + ${summary.outOfStock * 100 / summary.total} + '%'"></div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 mt-2 small text-muted">
+                        <span><i class="bi bi-circle-fill text-success"></i> In stock</span>
+                        <span><i class="bi bi-circle-fill text-warning"></i> Low</span>
+                        <span><i class="bi bi-circle-fill text-danger"></i> Out</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4" th:if="${!#lists.isEmpty(categories)}">
+                <div class="card-header bg-body fw-semibold"><i class="bi bi-diagram-3"></i> Items by category</div>
+                <div class="card-body">
+                    <div class="cat-bar mb-2" th:each="c : ${categories}">
+                        <div class="d-flex justify-content-between small">
+                            <span th:text="${c.label}">Category</span>
+                            <span class="text-muted" th:text="${c.count}">1</span>
+                        </div>
+                        <div class="progress" role="progressbar" th:attr="aria-label=${c.label}">
+                            <div class="progress-bar" th:style="'width:' + ${c.percent} + '%'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-body fw-semibold"><i class="bi bi-clock-history"></i> Recent activity</div>
+                <ul class="list-group list-group-flush">
+                    <li th:each="act : ${activities}" class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <span><strong th:text="${act.type.label}">Added</strong>
+                                  &middot; <span th:text="${act.itemName}">Item</span></span>
+                            <small class="text-muted" th:text="${#temporals.format(act.createdAt, 'dd MMM, HH:mm')}">time</small>
+                        </div>
+                        <small class="text-muted" th:text="${act.details}">details</small>
+                    </li>
+                    <li th:if="${#lists.isEmpty(activities)}" class="list-group-item text-muted">
+                        No activity yet. Add or edit an item to see it here.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

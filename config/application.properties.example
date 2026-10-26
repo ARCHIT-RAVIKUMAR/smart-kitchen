@@ -1,0 +1,5 @@
+# Copy this file to config/application.properties (that copy is ignored by Git)
+# and put your REAL local PostgreSQL details there.
+spring.datasource.url=jdbc:postgresql://localhost:5432/smart_kitchen
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_PASSWORD_HERE

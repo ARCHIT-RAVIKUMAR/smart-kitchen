@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Help')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('help')}"></nav>
+<main class="container py-4" style="max-width: 860px;">
+    <h1 class="h3 page-title mb-3"><i class="bi bi-question-circle"></i> Help &amp; FAQ</h1>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-body fw-semibold">What the statuses mean</div>
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <tbody>
+                <tr><td><span class="badge text-bg-success">In Stock</span></td><td>You have more than your minimum stock.</td></tr>
+                <tr><td><span class="badge text-bg-warning">Low Stock</span></td><td>Quantity is above 0 but at or below your minimum stock.</td></tr>
+                <tr><td><span class="badge text-bg-danger">Out of Stock</span></td><td>Quantity is 0.</td></tr>
+                <tr><td><span class="badge text-bg-success">Fresh</span></td>
+                    <td th:text="'Expiry date is more than ' + ${expiringSoonDays} + ' days away.'">Fresh</td></tr>
+                <tr><td><span class="badge text-bg-warning">Expiring Soon</span></td>
+                    <td th:text="'Expires today or within the next ' + ${expiringSoonDays} + ' days.'">Soon</td></tr>
+                <tr><td><span class="badge text-bg-danger">Expired</span></td><td>The expiry date has passed.</td></tr>
+                <tr><td><span class="badge text-bg-secondary">No Expiry</span></td><td>No expiry date was entered (for example salt). It is never marked expired.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="accordion shadow-sm" id="faq">
+        <div class="accordion-item">
+            <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">How do I add an item?</button></h2>
+            <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#faq"><div class="accordion-body">
+                Click <strong>Add item</strong>, fill in the name, category, quantity, unit and minimum stock, and save. Expiry date is optional.</div></div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">I used some of an item. How do I update it?</button></h2>
+            <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">
+                Open the item and use the <strong>-1</strong> / <strong>+1</strong> buttons, type an exact quantity, or press <strong>Mark as used up</strong>.</div></div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">What is the Shopping list?</button></h2>
+            <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">
+                It lists everything that is low or out of stock with a suggested amount to buy. You can print it or copy it to your phone.</div></div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4">Can I export my inventory?</button></h2>
+            <div id="q4" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">
+                Yes. On the Inventory page press <strong>Export CSV</strong>. It exports the items matching your current search and filters, and opens in Excel.</div></div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">Is my data saved?</button></h2>
+            <div id="q5" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">
+                Yes, everything is stored in a PostgreSQL database, so it is still there after a restart.</div></div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

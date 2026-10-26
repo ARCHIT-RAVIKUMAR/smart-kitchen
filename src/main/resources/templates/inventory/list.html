@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inventory')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('inventory')}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h3 page-title mb-0">Inventory</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-kitchen"
+               th:href="@{/inventory/export.csv(q=${filter.q},category=${filter.category},stock=${filter.stock},expiry=${filter.expiry},sort=${filter.sort},dir=${filter.dir})}"><i class="bi bi-download"></i> Export CSV</a>
+            <a class="btn btn-kitchen" th:href="@{/inventory/new}"><i class="bi bi-plus-lg"></i> Add Item</a>
+        </div>
+    </div>
+
+    <form th:action="@{/inventory}" method="get" class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label for="q" class="form-label small mb-1">Search by name</label>
+                    <input type="text" id="q" name="q" class="form-control" th:value="${filter.q}" placeholder="e.g. rice">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label for="category" class="form-label small mb-1">Category</label>
+                    <select id="category" name="category" class="form-select">
+                        <option value="">All</option>
+                        <option th:each="c : ${categories}" th:value="${c}" th:text="${c.label}"
+                                th:selected="${filter.category == c}"></option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label for="stock" class="form-label small mb-1">Stock status</label>
+                    <select id="stock" name="stock" class="form-select">
+                        <option value="">All</option>
+                        <option th:each="s : ${stockStatuses}" th:value="${s}" th:text="${s.label}"
+                                th:selected="${filter.stock == s}"></option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label for="expiry" class="form-label small mb-1">Expiry status</label>
+                    <select id="expiry" name="expiry" class="form-select">
+                        <option value="">All</option>
+                        <option th:each="e : ${expiryStatuses}" th:value="${e}" th:text="${e.label}"
+                                th:selected="${filter.expiry == e}"></option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label for="sort" class="form-label small mb-1">Sort by</label>
+                    <select id="sort" name="sort" class="form-select">
+                        <option value="name" th:selected="${filter.sort == 'name'}">Name</option>
+                        <option value="quantity" th:selected="${filter.sort == 'quantity'}">Quantity</option>
+                        <option value="expiry" th:selected="${filter.sort == 'expiry'}">Expiry date</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-3 align-items-center">
+                <select id="dir" name="dir" class="form-select w-auto" aria-label="Sort direction">
+                    <option value="asc" th:selected="${filter.dir == 'asc'}">Ascending</option>
+                    <option value="desc" th:selected="${filter.dir == 'desc'}">Descending</option>
+                </select>
+                <button type="submit" class="btn btn-kitchen">Apply</button>
+                <a class="btn btn-outline-secondary" th:href="@{/inventory}">Reset</a>
+                <small class="text-muted ms-auto" th:text="'Showing ' + ${#lists.size(items)} + ' of ' + ${totalCount} + ' items'">Showing</small>
+            </div>
+        </div>
+    </form>
+
+    <th:block th:unless="${#lists.isEmpty(items)}"><div th:replace="~{fragments/tables :: itemTable(${items})}"></div></th:block>
+
+    <div th:if="${#lists.isEmpty(items)}" class="card shadow-sm">
+        <div class="card-body empty-state">
+            <div class="emoji">&#128717;</div>
+            <div th:if="${totalCount == 0}">
+                <h2 class="h5">Your kitchen inventory is empty</h2>
+                <p>Add your first item to get started.</p>
+                <a class="btn btn-kitchen" th:href="@{/inventory/new}">Add your first item</a>
+            </div>
+            <div th:if="${totalCount > 0}">
+                <h2 class="h5">No items match your search or filters</h2>
+                <a class="btn btn-outline-kitchen" th:href="@{/inventory}">Clear filters</a>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>

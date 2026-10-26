@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="itemTable(items)" class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 table-cards">
+            <thead>
+            <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Stock</th>
+                <th>Expiry date</th>
+                <th>Expiry status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${items}">
+                <td data-label="Item">
+                    <a th:href="@{/inventory/{id}(id=${v.item.id})}" th:text="${v.item.name}"
+                       class="fw-semibold text-decoration-none">Item</a>
+                </td>
+                <td data-label="Category" th:text="${v.item.category.label}">Category</td>
+                <td data-label="Quantity" th:text="${v.quantityWithUnit}">1 kg</td>
+                <td data-label="Stock"><th:block th:replace="~{fragments/layout :: stockBadge(${v.stockStatus})}"></th:block></td>
+                <td data-label="Expiry date">
+                    <span th:if="${v.item.expiryDate != null}">
+                        <span th:text="${#temporals.format(v.item.expiryDate, 'dd MMM yyyy')}">01 Jan 2030</span>
+                        <small class="text-muted d-block" th:text="${v.expiryNote}">in 3 days</small>
+                    </span>
+                    <span th:if="${v.item.expiryDate == null}" class="text-muted">&mdash;</span>
+                </td>
+                <td data-label="Expiry status"><th:block th:replace="~{fragments/layout :: stockBadge(${v.expiryStatus})}"></th:block></td>
+                <td data-label="" class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-kitchen" th:href="@{/inventory/{id}(id=${v.item.id})}"><i class="bi bi-eye"></i> View</a>
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/inventory/{id}/edit(id=${v.item.id})}"><i class="bi bi-pencil"></i> Edit</a>
+                    <form th:action="@{/inventory/{id}/delete(id=${v.item.id})}" method="post"
+                          th:attr="data-name=${v.item.name}" class="d-inline delete-form">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

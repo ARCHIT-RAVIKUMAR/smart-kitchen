@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${view.item.name})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('inventory')}"></nav>
+<main class="container py-4" style="max-width: 900px;">
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <h1 class="h3 page-title mb-0" th:text="${view.item.name}">Item</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" th:href="@{/inventory}">&larr; Back</a>
+            <a class="btn btn-kitchen" th:href="@{/inventory/{id}/edit(id=${view.item.id})}">Edit</a>
+            <form th:action="@{/inventory/{id}/delete(id=${view.item.id})}" method="post"
+                  th:attr="data-name=${view.item.name}" class="delete-form">
+                <button type="submit" class="btn btn-outline-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Category</dt>
+                        <dd class="col-sm-7" th:text="${view.item.category.label}">Category</dd>
+
+                        <dt class="col-sm-5">Quantity</dt>
+                        <dd class="col-sm-7" th:text="${view.quantityWithUnit}">1 kg</dd>
+
+                        <dt class="col-sm-5">Minimum stock</dt>
+                        <dd class="col-sm-7" th:text="${view.minimumWithUnit}">1 kg</dd>
+
+                        <dt class="col-sm-5">Stock status</dt>
+                        <dd class="col-sm-7"><th:block th:replace="~{fragments/layout :: stockBadge(${view.stockStatus})}"></th:block></dd>
+
+                        <dt class="col-sm-5">Purchase date</dt>
+                        <dd class="col-sm-7" th:text="${view.item.purchaseDate != null} ? ${#temporals.format(view.item.purchaseDate, 'dd MMM yyyy')} : 'Not recorded'">-</dd>
+
+                        <dt class="col-sm-5">Expiry date</dt>
+                        <dd class="col-sm-7">
+                            <span th:if="${view.item.expiryDate != null}"
+                                  th:text="${#temporals.format(view.item.expiryDate, 'dd MMM yyyy')} + ' (' + ${view.expiryNote} + ')'">-</span>
+                            <span th:if="${view.item.expiryDate == null}">No expiry date</span>
+                        </dd>
+
+                        <dt class="col-sm-5">Expiry status</dt>
+                        <dd class="col-sm-7"><th:block th:replace="~{fragments/layout :: stockBadge(${view.expiryStatus})}"></th:block></dd>
+
+                        <dt class="col-sm-5">Notes</dt>
+                        <dd class="col-sm-7" th:text="${view.item.notes != null} ? ${view.item.notes} : 'None'">None</dd>
+
+                        <dt class="col-sm-5">Added</dt>
+                        <dd class="col-sm-7" th:text="${#temporals.format(view.item.createdAt, 'dd MMM yyyy, HH:mm')}">-</dd>
+
+                        <dt class="col-sm-5">Last updated</dt>
+                        <dd class="col-sm-7 mb-0" th:text="${#temporals.format(view.item.updatedAt, 'dd MMM yyyy, HH:mm')}">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-body fw-semibold">Update quantity</div>
+                <div class="card-body pb-0">
+                    <div class="d-flex gap-2">
+                        <form th:action="@{/inventory/{id}/adjust(id=${view.item.id})}" method="post" class="flex-fill">
+                            <input type="hidden" name="delta" value="-1">
+                            <button type="submit" class="btn btn-outline-secondary w-100"><i class="bi bi-dash-lg"></i> 1</button>
+                        </form>
+                        <form th:action="@{/inventory/{id}/adjust(id=${view.item.id})}" method="post" class="flex-fill">
+                            <input type="hidden" name="delta" value="1">
+                            <button type="submit" class="btn btn-outline-secondary w-100"><i class="bi bi-plus-lg"></i> 1</button>
+                        </form>
+                    </div>
+                    <form th:action="@{/inventory/{id}/quantity(id=${view.item.id})}" method="post" class="mt-2">
+                        <input type="hidden" name="quantity" value="0">
+                        <button type="submit" class="btn btn-outline-danger w-100"><i class="bi bi-x-circle"></i> Mark as used up</button>
+                    </form>
+                    <hr>
+                </div>
+                <form th:action="@{/inventory/{id}/quantity(id=${view.item.id})}" method="post" class="card-body pt-0 feedback-form">
+                    <label for="newQuantity" class="form-label">New quantity (<span th:text="${view.item.unit.label}">kg</span>)</label>
+                    <input type="number" step="0.01" min="0" id="newQuantity" name="quantity" class="form-control mb-3"
+                           th:value="${view.item.quantity}" required>
+                    <button type="submit" class="btn btn-kitchen w-100">Update quantity</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: footer}"></th:block>
+</body>
+</html>
